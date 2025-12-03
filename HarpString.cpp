@@ -1,5 +1,8 @@
 #include "HarpString.h"
 
+// Время в миллисекундах для подавления дребезга
+#define DEBOUNCE_DELAY 50
+
 /**
  * Конструктор HarpString
  * Инициализирует пин как вход
@@ -13,6 +16,11 @@ HarpString::HarpString(int pin)
     
     // Настраиваем пин как вход
     pinMode(m_Pin, INPUT);
+
+    // Инициализируем переменные для дебаунса
+    m_DebounceTimer = 0;
+    m_LastPhysicalState = false;
+    m_StableState = false;
 }
 
 /**
@@ -28,22 +36,52 @@ int HarpString::GetValue()
 
 /**
  * Проверяет, "задета" ли струна в данный момент
+ * Использует алгоритм подавления дребезга (debounce)
+ * Возвращает true ТОЛЬКО в момент срабатывания (rising edge),
+ * то есть один раз на каждое нажатие.
  * 
- * Определяет, считается ли струна задетой, на основе значения и настройки:
- * - Если HARPSTRING_HIGHLIGHTED_DEFAULT определен: струна задета,
- *   когда значение БОЛЬШЕ порога (фоторезистор получает больше света)
- * - Если HARPSTRING_HIGHLIGHTED_DEFAULT не определен: струна задета,
- *   когда значение МЕНЬШЕ порога (фоторезистор получает меньше света)
- * 
- * @return true если струна задета, false если нет
+ * @return true если струна только что была задета, false в остальных случаях
  */
 bool HarpString::IsTriggered()
 {
+    // Определяем текущее физическое состояние
+    bool currentPhysicalState;
+
 #ifdef HARPSTRING_HIGHLIGHTED_DEFAULT
     // Струна задета, если значение БОЛЬШЕ порога
-    return GetValue() > HARPSTIRNG_THRESHOLD;
+    currentPhysicalState = (GetValue() > HARPSTIRNG_THRESHOLD);
 #else
     // Струна задета, если значение МЕНЬШЕ порога
-    return GetValue() < HARPSTIRNG_THRESHOLD;
+    currentPhysicalState = (GetValue() < HARPSTIRNG_THRESHOLD);
 #endif
+
+    // Если физическое состояние изменилось с момента последнего опроса
+    if (currentPhysicalState != m_LastPhysicalState)
+    {
+        // Сбрасываем таймер дебаунса
+        m_DebounceTimer = millis();
+    }
+
+    // Запоминаем текущее физическое состояние как "последнее" для следующего цикла
+    m_LastPhysicalState = currentPhysicalState;
+
+    // Проверяем, прошло ли достаточно времени для стабилизации сигнала
+    if ((millis() - m_DebounceTimer) > DEBOUNCE_DELAY)
+    {
+        // Если стабильное состояние отличается от текущего физического
+        // (значит произошло реальное изменение состояния)
+        if (currentPhysicalState != m_StableState)
+        {
+            // Обновляем стабильное состояние
+            m_StableState = currentPhysicalState;
+
+            // Если новое состояние - "активно" (нажато), возвращаем true
+            if (m_StableState)
+            {
+                return true;
+            }
+        }
+    }
+
+    return false;
 }
