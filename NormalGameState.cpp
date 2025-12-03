@@ -56,6 +56,16 @@ void NormalGameState::Run()
     auto hartStringBuffer = m_GameManager->GetHarpStringBuffer(); // Массив струн
     auto numHarpString = m_GameManager->GetNumHarpStrings();     // Количество струн
 
+    // Если была нажата какая-то струна, проверяем, отпущена ли она
+    if (m_LastPressedHarp != -1)
+    {
+        // Если струна больше не активна, сбрасываем флаг последней нажатой струны
+        if (!hartStringBuffer[m_LastPressedHarp].IsTriggered())
+        {
+            m_LastPressedHarp = -1;
+        }
+    }
+
     // Проверяем каждую струну
     for (int i = 0; i < numHarpString; ++i)
     {

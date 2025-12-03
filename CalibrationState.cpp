@@ -82,6 +82,16 @@ void CalibrationState::Run()
     HarpString* harpString = m_GameManager->GetHarpStringBuffer();   // Массив струн
     int numHarpString = m_GameManager->GetNumHarpStrings();          // Количество струн
 
+    // Если была нажата какая-то струна, проверяем, отпущена ли она
+    if (m_LastPressedHarp != -1)
+    {
+        // Если струна больше не активна, сбрасываем флаг последней нажатой струны
+        if (!harpString[m_LastPressedHarp].IsTriggered())
+        {
+            m_LastPressedHarp = -1;
+        }
+    }
+
     // Если последовательность не пуста и прошло достаточно времени бездействия,
     // завершаем калибровку и сохраняем последовательность
     if (gameSequence->Length() && millis() - m_Timer > END_CALIBRATION_INTERVAL)
