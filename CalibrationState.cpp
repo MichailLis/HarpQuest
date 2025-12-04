@@ -117,12 +117,9 @@ void CalibrationState::Run()
     // Проверяем каждую струну на срабатывание
     for (int i = 0; i < numHarpString; ++i)
     {
-        // Если эта струна отличается от последней нажатой И струна активирована
-        if (m_LastPressedHarp != i && harpString[i].IsTriggered())
+        // Проверяем, была ли струна задета (с учетом дебаунса)
+        if (harpString[i].IsTriggered())
         {
-            // Запоминаем последнюю нажатую струну
-            m_LastPressedHarp = i;
-            
 #ifdef DEBUG_LOG
             // Выводим отладочную информацию о нажатой струне
             Serial.println();

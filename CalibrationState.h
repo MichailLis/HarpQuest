@@ -21,9 +21,6 @@ class CalibrationState : public IGameState
 private:
     // Таймер для отслеживания времени бездействия
     unsigned long m_Timer;
-    
-    // Индекс последней нажатой струны (-1, если ни одна струна не нажата)
-    int m_LastPressedHarp = -1;
 
     /**
      * Сохраняет текущую последовательность в энергонезависимую память (EEPROM)

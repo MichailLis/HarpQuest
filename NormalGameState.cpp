@@ -37,9 +37,6 @@ NormalGameState::~NormalGameState()
  */
 void NormalGameState::Reset()
 {
-    // Сбрасываем последнюю нажатую струну
-    m_LastPressedHarp = -1;
-    
     // Очищаем последовательность нажатий игрока
     m_GameManager->GetPlayerSequence()->Clear();
 }
@@ -59,12 +56,9 @@ void NormalGameState::Run()
     // Проверяем каждую струну
     for (int i = 0; i < numHarpString; ++i)
     {
-        // Если эта струна отличается от последней нажатой И струна активирована
-        if (i != m_LastPressedHarp && hartStringBuffer[i].IsTriggered())
+        // Проверяем, была ли струна задета (с учетом дебаунса)
+        if (hartStringBuffer[i].IsTriggered())
         {
-            // Запоминаем последнюю нажатую струну
-            m_LastPressedHarp = i;
-            
             // Добавляем струну в последовательность игрока (нумерация с 1, поэтому i+1)
             playerSequence->AddValue(i + 1);
             

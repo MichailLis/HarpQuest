@@ -17,6 +17,15 @@ class HarpString
 private:
     // Номер аналогового пина, к которому подключен фоторезистор
     int m_Pin;
+
+    // Таймер для обработки дребезга
+    unsigned long m_DebounceTimer;
+
+    // Предыдущее считанное состояние (для определения изменения)
+    bool m_LastPhysicalState;
+
+    // Текущее стабильное состояние (после подавления дребезга)
+    bool m_StableState;
 public:
     /**
      * Конструктор HarpString
