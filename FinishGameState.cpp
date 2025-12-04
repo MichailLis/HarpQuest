@@ -6,9 +6,11 @@
  * Инициализирует состояние завершения игры
  * 
  * @param manager указатель на менеджер игры
+ * @param playSequence если true, то перед открытием замка будет проиграна выигрышная мелодия
  */
-FinishGameState::FinishGameState(GameManager* manager) : IGameState(manager)
+FinishGameState::FinishGameState(GameManager* manager, bool playSequence) : IGameState(manager)
 {
+    m_PlaySequence = playSequence;
 #ifdef DEBUG_LOG
     // Выводим отладочную информацию о переходе в режим завершения
     Serial.println();
@@ -23,6 +25,19 @@ FinishGameState::FinishGameState(GameManager* manager) : IGameState(manager)
  */
 void FinishGameState::Run()
 {
+    // Если нужно проиграть мелодию (например, при открытии админом)
+    if (m_PlaySequence)
+    {
+        Sequence* gameSequence = m_GameManager->GetGameSequence();
+
+        // Проигрываем всю последовательность
+        for (int j = 0; j < gameSequence->Length(); ++j)
+        {
+            Mp3Player::PlaySample(gameSequence->GetValue(j), true);
+            Mp3Player::WaitUntilFinish();
+        }
+    }
+
 #ifdef DEBUG_LOG
     // Выводим отладочную информацию о времени активации замка
     Serial.println("Enable lock for ");

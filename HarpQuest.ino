@@ -79,7 +79,8 @@ void setup() {
   // Настраиваем действие для длительного нажатия на кнопку администратора
   // При удержании кнопки в течение ADMIN_BUTTON_TIMEOUT переходим в режим завершения игры
   adminButton.AddClickCallback(CreateEventHandlerFunction([](){
-    manager.SetState(new FinishGameState(&manager));
+    // Передаем true вторым параметром, чтобы проиграть мелодию перед открытием
+    manager.SetState(new FinishGameState(&manager, true));
   }), ADMIN_BUTTON_TIMEOUT);
 }
 

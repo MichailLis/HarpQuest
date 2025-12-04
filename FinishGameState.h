@@ -14,13 +14,18 @@
 
 class FinishGameState : public IGameState
 {
+private:
+    // Флаг, указывающий, нужно ли проигрывать мелодию перед открытием
+    bool m_PlaySequence;
+
 public:
     /**
      * Конструктор FinishGameState
      * 
      * @param manager указатель на менеджер игры
+     * @param playSequence если true, то перед открытием замка будет проиграна выигрышная мелодия
      */
-    FinishGameState(GameManager* manager);
+    FinishGameState(GameManager* manager, bool playSequence = false);
 
     /**
      * Основной цикл состояния завершения игры
